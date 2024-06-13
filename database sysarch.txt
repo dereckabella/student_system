@@ -1,0 +1,604 @@
+CREATE TABLE registration (
+    id_number INT PRIMARY KEY NOT NULL, 
+    firstName varchar(20) NOT NULL,
+    middleName varchar(20),
+    lastName varchar(20) NOT NULL,
+    age INTEGER NOT NULL CHECK (age >= 18),
+    gender varchar(20) CHECK (gender IN ('male', 'female', 'other')),
+    yearLevel INTEGER NOT NULL,
+    contactNumber varchar(20), 
+    email varchar(20) NOT NULL,
+    address varchar(50) not null,
+    password varchar(255)
+);
+
+CREATE TABLE admin (
+	admin_id int primary key not null,
+	username varchar(20) not null,
+	password varchar(20) not null
+)
+
+
+
+$idNumber = validate_and_sanitize_int($_POST['idNumber']);
+        $firstName = validate_input($_POST['firstName']);
+        $middleName = validate_input($_POST['middleName']);
+        $lastName = validate_input($_POST['lastName']);
+        $age = validate_and_sanitize_int($_POST['age']);
+        $gender = validate_input($_POST['gender']);
+        $yearLevel = validate_and_sanitize_int($_POST['yearLevel']);
+        $contactNumber = validate_input($_POST['contactNumber']);
+        $email = validate_email($_POST['email']);
+        $address = validate_input($_POST['address']);
+        $password = $_POST['password'];
+        $confirmPassword = $_POST['confirmPassword'];
+
+        if (isset($_POST['idNumber']) && isset($_POST['firstName']) && isset($_POST['middleName']) && isset($_POST['lastName']) && isset($_POST['age']) && isset($_POST['gender']) && isset($_POST['yearLevel']) && isset($_POST['contactNumber']) && isset($_POST['email']) && isset($_POST['address']) && isset($_POST['password']) && isset($_POST['confirmPassword'])) {
+
+            
+        }
+
+
+<?php
+include("connector.php");
+
+if (function_exists('get_db_connection')) {
+    echo "Function is defined.<br>";
+} else {
+    echo "Function is not defined. Check the include path or file.<br>";
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Get the database connection object
+    $conn = get_db_connection(); 
+
+    if (isset($_POST['id_number'], $_POST['password'])) {
+        // ... (rest of your login code) ...
+
+        // Use $conn here 
+        $sql = "SELECT id_number, password FROM registration WHERE id_number = ?"; 
+        $stmt = $conn->prepare($sql);
+        // ...
+    } else {
+        // ...
+    }
+
+    // Close the connection 
+    $conn->close();
+}
+?>
+
+<script>
+    function displayAlert() {
+        // Super simplified login check
+        if (document.getElementById('id_number').value === 'myusername' &&
+            document.getElementById('password').value === 'mypassword') {
+            alert("Login successful!");  // Display alert box 
+        } else {
+            alert("Login failed!"); // Or an error alert
+        }
+        return false; // Prevent default form submission
+    }
+</script>
+
+
+
+
+
+
+<?php
+$hostname = "localhost"; // replace with your actual database hostname
+$username = "root";
+$password = "";
+$database = "solon";
+
+// Create connection
+$conn = new mysqli($hostname, $username, $password, $database);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// If the registration form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Retrieve values from the form
+    $idNumber = $_POST["idNumber"];
+    $firstName = $_POST["firstname"];
+    $middleName = $_POST["middlename"];
+    $lastName = $_POST["lastname"];
+    $age = $_POST["age"];
+    $gender = $_POST["gender"];
+    $yearLevel = $_POST["yearLevel"];
+    $email = $_POST["email"];
+    $contact = $_POST["contact"];
+    $address = $_POST["address"];
+    $password = $_POST["password"];
+	$confirmPassword = $_POST["confirmPassword"];
+
+    // Hash the password for security
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+    
+	// SQL query to insert data into the registration table
+	$sql = "INSERT INTO registration (student_id, firstname, middlename, lastname, age, gender, year_level, email, contact, address, password, confirm_password) 
+            VALUES ('$idNumber', '$firstName', '$middleName', '$lastName', $age, '$gender', '$yearLevel', '$email', '$contact', '$address', '$hashedPassword', '$confirmPassword' )";
+	if ($conn->query($sql) === TRUE) {
+		
+		//echo "Register Successfully proceed to login Page";
+		
+		 echo '<script type="text/javascript">
+            var confirmed = window.confirm("Registration successful. Do you want to proceed to the login page?");
+            if (confirmed) {
+                window.location.href = "login.php";
+            } else {
+                window.location.href = "Register.php";
+            }
+          </script>';
+        
+		
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+	
+
+}
+
+
+
+// Close the database connection
+$conn->close();
+?>
+
+<?php
+$hostname = "localhost"; // replace with your actual database hostname
+$username = "root";
+$password = "";
+$database = "solon";
+
+// Create connection
+$conn = new mysqli($hostname, $username, $password, $database);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// If the login form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Retrieve values from the form
+    $idNumber = $_POST["username"];
+    $password = $_POST["password"];
+
+    // SQL query to select data from the users table
+    $sql = "SELECT * FROM registration WHERE student_id='$idNumber'";
+    $result = $conn->query($sql);
+
+    // Check if there are rows in the result set
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        
+        // Verify the entered password against the hashed password in the database
+        if (password_verify($password, $row['password'])) {
+            echo "Welcome, " . $row["student_id"] . "!<br>";
+            echo "Name: " . $row["firstname"] . "<br>"; // Adjust column name as per your database
+            echo "Email: " . $row["email"] . "<br>"; // Adjust column name as per your database
+        } else {
+            echo "Invalid password.";
+        }
+    } else {
+        echo "User not found.";
+    }
+	
+}
+
+// Close the database connection
+$conn->close();
+?>
+
+<?php
+$hostname = "localhost"; 
+$username = "root";
+$password = "";
+$database = "student_system";
+
+$conn = new mysqli($hostname, $username, $password, $database);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $firstName = $_POST["firstName"];
+    $middleName = $_POST["middleName"];
+    $lastName = $_POST["lastName"];
+    $age = $_POST["age"];
+    $gender = $_POST["gender"];
+    $yearLevel = $_POST["yearLevel"];
+    $email = $_POST["email"];
+    $contactNumber = $_POST["contactNumber"]; 
+    $address = $_POST["address"];
+
+    // Retrieve the ID (assuming it's sent through a hidden field or session)
+    $id_number = $_POST["idNumber"]; // Or $id_number = $_SESSION['idNumber'];
+
+    $sql = "UPDATE registration SET firstName = ?, middleName = ?, lastName = ?, age = ?, gender = ?, yearLevel = ?, email = ?, contactNumber = ?, address = ? WHERE id_number = ?";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssisisisi", $firstName, $middleName, $lastName, $age, $gender, $yearLevel, $email, $contactNumber, $address, $id_number);
+
+    if ($stmt->execute()) {
+        echo '<script type="text/javascript"> window.confirm("Profile updated successfully!"); window.location.href = "dashboard.php"; </script>';
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
+    }
+}
+?>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sit-In Monitoring Dashboard</title>
+    <style>
+
+        header {
+            background-color: #f0f0f0;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        *{
+            list-style: none;
+            text-decoration: none;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        body{
+            background: #f5f6fa;
+        }
+
+        .wrapper .sidebar{
+            background: rgb(5, 68, 104);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 225px;
+            height: 100%;
+            padding: 20px 0;
+            transition: all 0.5s ease;
+        }
+
+        .wrapper .sidebar .profile{
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .wrapper .sidebar .profile img{
+            display: block;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto;
+        }
+
+        .wrapper .sidebar .profile h3{
+            color: #ffffff;
+            margin: 10px 0 5px;
+        }
+
+        .wrapper .sidebar .profile p{
+            color: rgb(206, 240, 253);
+            font-size: 14px;
+        }
+            
+        .wrapper .sidebar ul li a{
+            display: block;
+            padding: 13px 30px;
+            border-bottom: 1px solid #10558d;
+            color: rgb(241, 237, 237);
+            font-size: 16px;
+            position: relative;
+        }
+
+        .wrapper .sidebar ul li a .icon{
+            color: #dee4ec;
+            width: 30px;
+            display: inline-block;
+        }
+
+        .wrapper .sidebar ul li a:hover,
+        .wrapper .sidebar ul li a.active{
+            color: #0c7db1;
+
+            background:white;
+            border-right: 2px solid rgb(5, 68, 104);
+        }
+
+        .wrapper .sidebar ul li a:hover .icon,
+        .wrapper .sidebar ul li a.active .icon{
+            color: #0c7db1;
+        }
+
+        .wrapper .sidebar ul li a:hover:before,
+        .wrapper .sidebar ul li a.active:before{
+            display: block;
+        }
+
+        .wrapper .sidebar .profile img {
+            /* Your existing styles for the profile image */
+            transition: transform 0.3s ease; /* Add transition for smooth animation */
+        }
+
+        .wrapper .sidebar .profile img:hover {
+            transform: scale(1.1); /* Increase size on hover */
+        }
+
+        .container {
+			width: 500px; 
+			margin: 50px auto;
+			padding: 30px; 
+			border: none;
+			border-radius: 10px;
+			background-color: #e0f0ff; 
+			box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1); 
+		}
+
+		fieldset {
+			margin-bottom: 20px;
+			border: none; 
+			padding: 0; 
+		}
+
+		legend {
+			font-weight: bold;
+			font-size: 1.2em;
+			padding: 10px 20px;
+			background-color: #b3daff; 
+			border-radius: 5px; 
+			color: #333; 
+		}
+
+		.form-group {
+			margin-bottom: 15px;
+		}
+
+		.form-group label {
+			display: block;
+			margin-bottom: 5px;
+			color: #444; 
+		}
+
+		.form-group input[type="text"],
+		.form-group input[type="email"],
+		.form-group input[type="password"],
+		.form-group input[type="number"],
+		.form-group input[type="tel"],
+		.form-group textarea,
+		.form-group select {
+			width: 95%; /* Ensures full width */
+			padding: 10px; 
+			border: 1px solid #ccc;
+			border-radius: 5px;
+		} 
+
+		button[type="submit"] {
+			background-color: #3377ff;
+			color: white;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background-color 0.3s ease; 
+		}
+
+		button[type="submit"]:hover {
+			background-color: #2255cc; 
+		}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome, <?php echo $_SESSION['firstName']; ?>!</h1>
+    </header>
+    
+    <div class="wrapper">
+        <div class="sidebar">
+        <div class="profile">
+        <label for="fileInput">
+                    <img id="profilePicture" src="/student_system/void.png" alt="profile_picture">
+                </label>
+                <input type="file" id="fileInput" style="display: none;" accept="image/*">
+                <h3><?php echo $_SESSION['firstName'] . ' ' . $_SESSION['lastName']; ?></h3>
+                <a href="edit_profile.php">Edit Profile</a>
+            </div>
+            <ul>
+                <li>
+                    <a href="#" class="active">
+                        <span class="icon"><i class="fas fa-home"></i></span>
+                        <span class="item">Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="icon"><i class="fas fa-desktop"></i></span>
+                        <span class="item">My Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="icon"><i class="fas fa-user-friends"></i></span>
+                        <span class="item">People</span>
+                    </a>
+                </li>
+                
+            
+               
+            
+            </ul>
+            <button onclick="location.href='login.php'">Logout</button> 
+        </div>
+        
+        </div>
+        
+    </div>
+
+    <script>
+        // JavaScript to handle file input change
+        const profilePicture = document.getElementById('profilePicture');
+        const fileInput = document.getElementById('fileInput');
+
+        profilePicture.addEventListener('click', function() {
+            fileInput.click(); // Click the hidden file input when the profile picture is clicked
+        });
+
+        fileInput.addEventListener('change', function() {
+            const file = this.files[0]; // Get the selected file
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    profilePicture.src = event.target.result; // Set the profile picture's src to the selected image
+                };
+
+                reader.readAsDataURL(file); // Read the selected file as a data URL
+            }
+        });
+    </script>
+    <form action="edit_profile.php" method="post">
+            <fieldset>
+                <legend>Personal Information</legend>
+				
+                <div class="form-group">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="middleName">Middle Name:</label>
+                    <input type="text" id="middleName" name="middleName">
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                </div>  
+
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" name="age" required>
+                </div>  
+
+                <div class="form-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">Select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="yearLevel">Year Level:</label>
+                    <input type="number" id="yearLevel" name="yearLevel" required>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Contact Information</legend>
+                <div class="form-group">
+                    <label for="contactNumber">Contact Number:</label>
+                    <input type="tel" id="contactNumber" name="contactNumber" required>
+                </div> 
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div> 
+
+                 <div class="form-group">
+                    <label for="address">Address:</label>
+                    <textarea id="address" name="address" required></textarea>
+                </div> 
+            </fieldset>
+
+            
+            <button type="submit">Save Changes</button>
+            
+        </form>
+    
+</body>
+</html>
+
+
+<form action="edit_profile.php" method="post">
+            <fieldset>
+                <legend>Personal Information</legend>
+				
+                <div class="form-group">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="middleName">Middle Name:</label>
+                    <input type="text" id="middleName" name="middleName">
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                </div>  
+
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" name="age" required>
+                </div>  
+
+                <div class="form-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">Select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="yearLevel">Year Level:</label>
+                    <input type="number" id="yearLevel" name="yearLevel" required>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Contact Information</legend>
+                <div class="form-group">
+                    <label for="contactNumber">Contact Number:</label>
+                    <input type="tel" id="contactNumber" name="contactNumber" required>
+                </div> 
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div> 
+
+                 <div class="form-group">
+                    <label for="address">Address:</label>
+                    <textarea id="address" name="address" required></textarea>
+                </div> 
+            </fieldset>
+
+            
+            <button type="submit">Save Changes</button>
+            
+        </form>
