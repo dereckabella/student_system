@@ -197,7 +197,8 @@ $stmt->close();
     </nav>
   
 
-    <!-- Page Content -->
+    <p></p>
+    
     <div id="content">
         <header class="bg-primary text-white py-3 text-center rounded ">
             <h1>Welcome, <?php echo $_SESSION['firstName']; ?>!</h1>
